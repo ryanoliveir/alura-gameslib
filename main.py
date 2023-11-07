@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 from flask_bcrypt import Bcrypt  
+from Models.Game import Game
+from Models.User import User
 
-class Game():
-    def __init__(self, name, category, console):
-        self.name = name
-        self.category = category
-        self.console = console
+
+# class Game():
+#     def __init__(self, name, category, console):
+#         self.name = name
+#         self.category = category
+#         self.console = console
+
 
 game1 = Game('Tetris', 'Puzzle', 'Atari')
 game2 = Game('God of War', 'Rack n Slash', 'PS2')
@@ -28,8 +32,7 @@ PASSWORD_HASH = bcrypt.generate_password_hash(PASSWORD)
 def logout():
     session['user'] = None
     flash('Logout efetuado')
-    return redirect('/login')
-
+    return redirect(url_for('login'))
 
 @app.route('/authentication', methods=['POST'])
 def authentication():
@@ -40,17 +43,14 @@ def authentication():
         session['user'] = user
         flash(f"Bem vindo {session['user'] }")
         nextPage = request.form['next']
-
-
-        return redirect(f'/{nextPage}')
+        return redirect(nextPage)
 
     flash(f"Erro de Login")
-    return redirect('/login')
+    return redirect(url_for('login'))
 
 @app.route('/login')
 def login():
     page = request.args.get('next')
-    print(page)
     return render_template('login.html', next=page)
 
 @app.route('/register', methods=['POST'])
@@ -65,12 +65,12 @@ def register():
     
 
     # return render_template('list.html', titles='Games', games=games)
-    return redirect('/')
+    return redirect(url_for('index'))
 
 @app.route('/register-game')
 def register_game():
     if 'user' not in session or session['user'] == None :
-        return redirect('/login?next=register-game')
+        return redirect(url_for('login', next=url_for('register_game')))
     return render_template('game-form.html', title='Novo Jogo')
 
 @app.route('/')
@@ -79,7 +79,7 @@ def index():
         print(session)
         return render_template('list.html', title='Games', games=games)
     
-    return redirect('/login')
+    return redirect(url_for('login'))
 
 
 if(__name__ == '__main__'):
