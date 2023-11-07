@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, flash
 from flask_bcrypt import Bcrypt  
 
 class Game():
@@ -24,6 +24,13 @@ PASSWORD = '123456'
 PASSWORD_HASH = bcrypt.generate_password_hash(PASSWORD)
 
 
+@app.route('/logout')
+def logout():
+    session['user'] = None
+    flash('Logout efetuado')
+    return redirect('/login')
+
+
 @app.route('/authentication', methods=['POST'])
 def authentication():
     user = request.form['user']
@@ -31,8 +38,10 @@ def authentication():
 
     if user == USER and bcrypt.check_password_hash(PASSWORD_HASH, password):
         session['user'] = user
+        flash(f"Bem vindo {session['user'] }")
         return redirect('/')
 
+    flash(f"Erro de Login")
     return redirect('/login')
 
 @app.route('/login')
@@ -55,6 +64,8 @@ def register():
 
 @app.route('/register-game')
 def register_game():
+    if 'user' not in session or session['user'] == None :
+        return redirect('/login')
     return render_template('game-form.html', title='Novo Jogo')
 
 @app.route('/')

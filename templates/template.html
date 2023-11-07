@@ -8,12 +8,25 @@
   </head>
   <body>
     <div class="container">
-      <div class="page-header">
-        <h1>{{ title }}</h1>
-      </div>
-
+      
+      {% with messages = get_flashed_messages() %}
+        {% if messages %} 
+        <ul id="messages" class="list-unstyled">
+          {% for message in messages %}
+          <li class="alert alert-success">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <div class="page-header d-flex justify-content-between p-2">
+          <h1>{{ title }}</h1>
+          <button type="button" id="logout" class="btn btn-primary">Logout</button>
+          <!-- <button type="button" id="logout" class="btn btn-primary">Logout</button> -->
+        </div>
+        
       {% block content %} {% endblock %}
 
     </div>
   </body>
+  <script src="/static/js/script.js"></script>
 </html>
