@@ -39,14 +39,19 @@ def authentication():
     if user == USER and bcrypt.check_password_hash(PASSWORD_HASH, password):
         session['user'] = user
         flash(f"Bem vindo {session['user'] }")
-        return redirect('/')
+        nextPage = request.form['next']
+
+
+        return redirect(f'/{nextPage}')
 
     flash(f"Erro de Login")
     return redirect('/login')
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    page = request.args.get('next')
+    print(page)
+    return render_template('login.html', next=page)
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -65,7 +70,7 @@ def register():
 @app.route('/register-game')
 def register_game():
     if 'user' not in session or session['user'] == None :
-        return redirect('/login')
+        return redirect('/login?next=register-game')
     return render_template('game-form.html', title='Novo Jogo')
 
 @app.route('/')
