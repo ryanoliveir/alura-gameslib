@@ -4,13 +4,6 @@ from Models.Game import Game
 from Models.User import User
 
 
-# class Game():
-#     def __init__(self, name, category, console):
-#         self.name = name
-#         self.category = category
-#         self.console = console
-
-
 game1 = Game('Tetris', 'Puzzle', 'Atari')
 game2 = Game('God of War', 'Rack n Slash', 'PS2')
 game3 = Game('CSGO', 'FPS', 'PC')
@@ -22,6 +15,17 @@ games = [game1, game2, game3, game4]
 app = Flask(__name__)
 app.secret_key = 'flaks_secret_key'
 bcrypt = Bcrypt(app)
+
+
+user1 = User('Ryan', 'ryann', '123456', bcrypt)
+user2 = User('Eduardo', 'snakin', 'cyma102030', bcrypt)
+user3 = User('Marcos', 'marquito', 'senhaforte',bcrypt)
+
+users = {
+    user1.nickname: user1,
+    user2.nickname: user2,
+    user3.nickname: user3
+}
 
 USER = 'ryan'
 PASSWORD = '123456'
@@ -36,14 +40,22 @@ def logout():
 
 @app.route('/authentication', methods=['POST'])
 def authentication():
+
     user = request.form['user']
     password = request.form['password']
 
-    if user == USER and bcrypt.check_password_hash(PASSWORD_HASH, password):
-        session['user'] = user
-        flash(f"Bem vindo {session['user'] }")
-        nextPage = request.form['next']
-        return redirect(nextPage)
+    if user in users: 
+        if bcrypt.check_password_hash(users[user].password_hash, password):
+            session['user'] = users[user].nickname,
+            flash(f"Bem vindo {users[user].nickname}")
+            nextPage = request.form['next']
+
+            if not nextPage == "None":
+                return redirect(nextPage)
+            
+            return redirect(url_for('index'))
+
+
 
     flash(f"Erro de Login")
     return redirect(url_for('login'))
